@@ -1,8 +1,8 @@
 <?php
 
 use dokuwiki\Extension\ActionPlugin;
-use dokuwiki\Extension\EventHandler;
 use dokuwiki\Extension\Event;
+use dokuwiki\Extension\EventHandler;
 
 /**
  * All DokuWiki plugins to extend the parser/rendering mechanism
@@ -30,7 +30,7 @@ class action_plugin_dtable extends ActionPlugin
         $event->data[] = [
             'type' => 'format',
             'title' => $this->getLang('toolbar_insert_button'),
-            'icon'  => '../../plugins/dtable/images/add_table.png',
+            'icon' => '../../plugins/dtable/images/add_table.png',
             'open' => '<dtable>',
             'close' => '</dtable>',
             'sample' => "\n^   ^   ^\n|   |   |\n|   |   |\n|   |   |\n"
@@ -54,7 +54,7 @@ class action_plugin_dtable extends ActionPlugin
         $dtable_pages = [];
         foreach ($lines as $line) {
             if (strpos($line, '<dtable>') === 0) {
-                $new_lines[] = '<dtab' . ( $i < 10 ? '0' . $i : $i ) . '>';
+                $new_lines[] = '<dtab' . ($i < 10 ? '0' . $i : $i) . '>';
                 $dtable_pages[$i] = $ID;
                 $i++;
             } else {
@@ -75,9 +75,9 @@ class action_plugin_dtable extends ActionPlugin
 
             foreach ($lines as $line) {
                 if (strpos($line, '<dtable>') === 0)
-                $in_dtable_tag = 1;
+                    $in_dtable_tag = 1;
                 if (strpos($line, '</dtable>') === 0)
-                $in_dtable_tag = 0;
+                    $in_dtable_tag = 0;
 
                 if (strpos($line, '|') !== 0 && $in_tab == 1 && $in_dtable_tag == 0) {
                     $new_lines[] = '</dtable>';
@@ -106,7 +106,7 @@ class action_plugin_dtable extends ActionPlugin
         global $JSINFO, $ID;
 
         if (auth_quickaclcheck($ID) >= AUTH_EDIT)
-        $JSINFO['write'] = true;
+            $JSINFO['write'] = true;
         else $JSINFO['write'] = false;
 
         $JSINFO['disabled'] = explode(',', $this->getConf('disabled'));
@@ -150,14 +150,13 @@ class action_plugin_dtable extends ActionPlugin
                 $event->preventDefault();
                 $event->stopPropagation();
 
-
-
-                $json = new JSON();
-
                 [$dtable_start_line, $dtable_page_id] = explode('_', $_POST['table'], 2);
                 $file = wikiFN($dtable_page_id);
-                if (! @file_exists($file)) {
-                    echo $json->encode(['type' => 'error', 'msg' => 'This page does not exist.']);
+                if (!@file_exists($file)) {
+                    echo json_encode([
+                        'type' => 'error',
+                        'msg' => 'This page does not exist.'
+                    ]);
                     exit(0);
                 }
 
@@ -166,15 +165,15 @@ class action_plugin_dtable extends ActionPlugin
                 $page_lines = explode("\n", io_readFile($file));
 
                 if (isset($_POST['remove'])) {
-                    $scope = $json->decode($_POST['remove']);
+                    $scope = json_decode($_POST['remove'], true);
 
                     $lines_to_remove = [];
                     for ($i = $scope[0]; $i <= $scope[1]; $i++)
-                    $lines_to_remove[] = $i;
+                        $lines_to_remove[] = $i;
 
                     $removed_line = '';
                     foreach ($lines_to_remove as $line) {
-                        $removed_line .= $page_lines[ $line ] . " ";
+                        $removed_line .= $page_lines[$line] . " ";
                     }
 
                     array_splice($page_lines, $scope[0], $scope[1] - $scope[0] + 1);
@@ -184,16 +183,17 @@ class action_plugin_dtable extends ActionPlugin
                     saveWikiText($dtable_page_id, $new_cont, $this->getLang('summary_remove') . ' ' . $removed_line);
 
 
-
-                    echo $json->encode(['type' => 'success', 'spans' =>
-                        $dtable->get_spans($dtable_start_line, $page_lines, $dtable_page_id)]);
+                    echo json_encode([
+                        'type' => 'success',
+                        'spans' => $dtable->get_spans($dtable_start_line, $page_lines, $dtable_page_id)
+                    ]);
                 } else {
                     $cols = [];
                     $new_table_line = [];
                     foreach ($_POST as $k => $v) {
                         if (strpos($k, 'col') === 0) {
                             //remove col from col12, col1 etc. to be 12 1
-                            $cols[(int)substr($k, 3)] = $json->decode($v);
+                            $cols[(int)substr($k, 3)] = json_decode($v, true);
                         }
                     }
                     ksort($cols);
@@ -208,7 +208,7 @@ class action_plugin_dtable extends ActionPlugin
                         $value = $cols[$i][1];
 
                         if ($value == '' && $j >= 1)
-                        $new_table_line[$j - 1][1]++;
+                            $new_table_line[$j - 1][1]++;
                         else {
                             $type = $class == 'tablecell_open' ? '|' : '^';
                             $new_table_line[$j] = [1, 1, $type, $value];
@@ -222,7 +222,7 @@ class action_plugin_dtable extends ActionPlugin
 
                         /*$table_line = (int) $_POST['add'] + 1;
                         $line_to_add = $dtable_start_line + $table_line;*/
-                        $line_to_add = (int) $_POST['add'] + 1;
+                        $line_to_add = (int)$_POST['add'] + 1;
 
                         array_splice($page_lines, $line_to_add, 0, $new_line);
                         $line_nr = $line_to_add;
@@ -231,15 +231,15 @@ class action_plugin_dtable extends ActionPlugin
                     } elseif (isset($_POST['edit'])) {
                         $action = 'edit';
 
-                        $scope = $json->decode($_POST['edit']);
+                        $scope = json_decode($_POST['edit'], true);
 
                         $lines_to_change = [];
                         for ($i = $scope[0]; $i <= $scope[1]; $i++)
-                        $lines_to_change[] = $i;
+                            $lines_to_change[] = $i;
 
                         $old_line = '';
                         foreach ($lines_to_change as $line) {
-                            $old_line .= $page_lines[ $line ] . " ";
+                            $old_line .= $page_lines[$line] . " ";
                         }
 
                         //$old_line = $page_lines[ $line_to_change ];
@@ -255,7 +255,7 @@ class action_plugin_dtable extends ActionPlugin
                     $new_cont = implode("\n", $page_lines);
                     saveWikiText($dtable_page_id, $new_cont, $info);
 
-                    echo $json->encode([
+                    echo json_encode([
                         'type' => 'success',
                         'action' => $action,
                         'new_row' => $dtable->parse_line($new_line, $dtable_page_id),
@@ -289,15 +289,15 @@ class action_plugin_dtable extends ActionPlugin
                 $lock_file = wikiLockFN($ID);
                 if (file_exists($lock_file)) {
                     $locktime = filemtime(wikiLockFN($ID));
-                //dokuwiki uses dformat here but we will use raw unix timesamp
+                    //dokuwiki uses dformat here but we will use raw unix timesamp
                     $expire = $locktime + $conf['locktime'] - time();
                 } else $expire = $conf['locktime'];
 
-                $json = new JSON();
-
-                if ($checklock === false)
-                echo $json->encode(['locked' => 0, 'time_left' => $expire]);
-                else echo $json->encode(['locked' => 1, 'who' => $checklock, 'time_left' => $expire]);
+                if ($checklock === false) {
+                    echo json_encode(['locked' => 0, 'time_left' => $expire]);
+                } else {
+                    echo json_encode(['locked' => 1, 'who' => $checklock, 'time_left' => $expire]);
+                }
 
                 break;
         }
