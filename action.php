@@ -10,7 +10,6 @@ use dokuwiki\Extension\EventHandler;
  */
 class action_plugin_dtable extends ActionPlugin
 {
-
     /** @inheritdoc */
     public function register(EventHandler $controller)
     {

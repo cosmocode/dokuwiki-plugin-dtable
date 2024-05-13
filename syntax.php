@@ -111,7 +111,7 @@ class syntax_plugin_dtable extends SyntaxPlugin
 
                             $lines = $dtable->rows($raw_lines, $id, $start_line);
 
-                            $renderer->doc .= '<form class="dtable dynamic_form" id="dtable_' . $start_line . '_' . $id . '" action="' . $DOKU_BASE . 'lib/exe/ajax.php" method="post" data-table="' . htmlspecialchars(json_encode($lines)) . '">';
+                            $renderer->doc .= '<form class="dtable dynamic_form" id="dtable_' . $start_line . '_' . $id . '" action="' . DOKU_BASE . 'lib/exe/ajax.php" method="post" data-table="' . htmlspecialchars(json_encode($lines)) . '">';
                             $renderer->doc .= '<input type="hidden" class="dtable_field" value="dtable" name="call">';
 
                             //This is needed to correct linkwiz behaviour.
