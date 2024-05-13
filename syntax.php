@@ -8,34 +8,44 @@ use dokuwiki\Extension\SyntaxPlugin;
  */
 class syntax_plugin_dtable extends SyntaxPlugin
 {
+    /** @inheritdoc */
     public function getPType()
     {
         return 'block';
     }
 
+    /** @inheritdoc */
     public function getType()
     {
         return 'container';
     }
+
+    /** @inheritdoc */
     public function getSort()
     {
         return 400;
     }
+
+    /** @inheritdoc */
     public function getAllowedTypes()
     {
         return ['container', 'formatting', 'substition'];
     }
 
+    /** @inheritdoc */
     public function connectTo($mode)
     {
+        // A PARSER_WIKITEXT_PREPROCESS will create unique opening tags for each table
         $this->Lexer->addEntryPattern('<dtab[0-9][0-9]>(?=.*</dtable>)', $mode, 'plugin_dtable');
     }
+
+    /** @inheritdoc */
     public function postConnect()
     {
         $this->Lexer->addExitPattern('</dtable>', 'plugin_dtable');
     }
 
-
+    /** @inheritdoc */
     public function handle($match, $state, $pos, Doku_Handler $handler)
     {
         global $INFO;
@@ -56,6 +66,7 @@ class syntax_plugin_dtable extends SyntaxPlugin
         return [];
     }
 
+    /** @inheritdoc */
     public function render($mode, Doku_Renderer $renderer, $data)
     {
         global $ID;
@@ -65,7 +76,7 @@ class syntax_plugin_dtable extends SyntaxPlugin
                 case DOKU_LEXER_ENTER:
                     if ($match != false) {
                         if (auth_quickaclcheck($ID) >= AUTH_EDIT) {
-                            $dtable =& plugin_load('helper', 'dtable');
+                            $dtable = plugin_load('helper', 'dtable');
 
                             $pos = $match[0];
                             $table_nr = $match[1];

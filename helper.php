@@ -9,6 +9,13 @@ class helper_plugin_dtable extends dokuwiki_plugin
     static $line_nr_c = [];
     static $file_cont;
 
+    /**
+     * Get the error message for a given error code
+     *
+     * @param string $code
+     * @param bool $json Return as JSON?
+     * @return string
+     */
     public function error($code, $json = false)
     {
         if ($json == true) {
@@ -19,6 +26,13 @@ class helper_plugin_dtable extends dokuwiki_plugin
         }
     }
 
+    /**
+     * @fixme describe
+     * @param $pos
+     * @param $file_path
+     * @param $start_line
+     * @return mixed
+     */
     public static function line_nr($pos, $file_path, $start_line = 0)
     {
         $line_nr = 0;
@@ -49,7 +63,7 @@ class helper_plugin_dtable extends dokuwiki_plugin
                 self::$line_nr_c[$file_path][$i] = $line_nr;
 
                 $pos += $i;
-                $start_pos  = $i;
+                $start_pos = $i;
             }
             $line_nr = $start_line;
         }
@@ -69,6 +83,15 @@ class helper_plugin_dtable extends dokuwiki_plugin
             return self::$line_nr_c[$file_path][$pos];
         }
     }
+
+    /**
+     * Parse the given row
+     *
+     * @param string $row
+     * @param string $page_id
+     * @param int $start_line
+     * @return array
+     */
     public function rows($row, $page_id, $start_line)
     {
         $Parser = new Doku_Parser();
@@ -83,6 +106,7 @@ class helper_plugin_dtable extends dokuwiki_plugin
 
         return $Parser->parse($row);
     }
+
     public function get_spans($start_line, $page_lines, $page_id)
     {
         $table = '';
@@ -102,6 +126,7 @@ class helper_plugin_dtable extends dokuwiki_plugin
         }
         return $spans;
     }
+
     public function format_row($array_line)
     {
         foreach ($array_line as $cell) {
@@ -120,6 +145,7 @@ class helper_plugin_dtable extends dokuwiki_plugin
 
         return $line;
     }
+
     public function parse_line($line, $page_id)
     {
         $line = preg_replace('/\s*:::\s*\|/', '', $line);
@@ -185,12 +211,12 @@ class helper_plugin_dtable_handler
                 } elseif (trim($match) == '') {
                     $this->calls[$this->row][0][$this->cell][3] .= $match;
                 } else {
-                                $row = $this->row;
+                    $row = $this->row;
                     while (preg_match('/^\s*:::\s*$/', $this->calls[$row][0][$this->cell][3]) && $row > 0) {
                         $row--;
                     }
-                                if ($row != $this->row)
-                                    $this->calls[$row][0][$this->cell][1]++;
+                    if ($row != $this->row)
+                        $this->calls[$row][0][$this->cell][1]++;
 
                     if ($match[0] == "\n") {
                         $line = helper_plugin_dtable::line_nr($pos, $this->file_path, $this->start_line);
@@ -223,25 +249,28 @@ class helper_plugin_dtable_handler
         }
         return true;
     }
+
     /** Change // into \n during editing in textbox, can be turn off if not needed. */
     public function linebreak($match, $state, $pos)
     {
         $this->calls[$this->row][0][$this->cell][3] .= "\n";
         return true;
     }
+
     /**
-    * Catchall handler for the remaining syntax
-    *
-    * @param string $name Function name that was called
-    * @param array $params Original parameters
-    * @return bool If parsing should be continue
-    */
+     * Catchall handler for the remaining syntax
+     *
+     * @param string $name Function name that was called
+     * @param array $params Original parameters
+     * @return bool If parsing should be continue
+     */
     public function __call($name, $params)
     {
         $this->calls[$this->row][0][$this->cell][3] .= $params[0];
         return true;
     }
-    public function _finalize()
+
+    public function __finalize()
     {
         //remove last cell and -- the celsapn it doesn't exist
         array_pop($this->calls[$this->row][0]);

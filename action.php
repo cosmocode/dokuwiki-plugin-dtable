@@ -10,6 +10,8 @@ use dokuwiki\Extension\Event;
  */
 class action_plugin_dtable extends ActionPlugin
 {
+
+    /** @inheritdoc */
     public function register(EventHandler $controller)
     {
         $controller->register_hook('DOKUWIKI_STARTED', 'AFTER', $this, 'add_php_data');
@@ -18,7 +20,12 @@ class action_plugin_dtable extends ActionPlugin
         $controller->register_hook('TOOLBAR_DEFINE', 'AFTER', $this, 'insert_button', []);
     }
 
-    public function insert_button(Event $event, $param)
+    /**
+     * Add a button to the toolbar
+     *
+     * @param Event $event TOOLBAR_DEFINE
+     */
+    public function insert_button(Event $event)
     {
         $event->data[] = [
             'type' => 'format',
@@ -29,7 +36,13 @@ class action_plugin_dtable extends ActionPlugin
             'sample' => "\n^   ^   ^\n|   |   |\n|   |   |\n|   |   |\n"
         ];
     }
-    public function parser_preprocess_handler(&$event, $parm)
+
+    /**
+     * Replace the opening tag with a unique tag
+     *
+     * @param Event $event PARSER_WIKITEXT_PREPROCESS
+     */
+    public function parser_preprocess_handler(Event $event)
     {
         global $ID, $INFO;
         $lines = explode("\n", $event->data);
@@ -82,7 +95,13 @@ class action_plugin_dtable extends ActionPlugin
         }
         $event->data = implode("\n", $new_lines);
     }
-    public function add_php_data(&$event, $param)
+
+    /**
+     * Add info to JSINFO and extend the JavaScript LANG array
+     *
+     * @param Event $event DOKUWIKI_STARTED
+     */
+    public function add_php_data(Event $event)
     {
         global $JSINFO, $ID;
 
@@ -116,7 +135,13 @@ class action_plugin_dtable extends ActionPlugin
         );
         $JSINFO['lang']['unlock_notify'] = $this->getLang('unlock_notify');
     }
-    public function handle_ajax(&$event, $param)
+
+    /**
+     * Handle Ajax calls to edit the page data
+     *
+     * @param Event $event AJAX_CALL_UNKNOWN
+     */
+    public function handle_ajax(Event $event)
     {
         global $conf;
 
@@ -136,7 +161,7 @@ class action_plugin_dtable extends ActionPlugin
                     exit(0);
                 }
 
-                $dtable =& plugin_load('helper', 'dtable');
+                $dtable = plugin_load('helper', 'dtable');
 
                 $page_lines = explode("\n", io_readFile($file));
 
