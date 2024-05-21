@@ -41,7 +41,7 @@ class helper_plugin_dtable extends dokuwiki_plugin
     public static function line_nr($pos, $file_path, $start_line = 0)
     {
         $line_nr = 0;
-        if (!is_array(self::$line_nr_c[$file_path])) {
+        if (!is_array(self::$line_nr_c[$file_path] ?? null)) {
             self::$line_nr_c[$file_path] = [];
             $start_pos = 0;
             $line_nr = 0;

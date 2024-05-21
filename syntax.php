@@ -48,12 +48,12 @@ class syntax_plugin_dtable extends SyntaxPlugin
     /** @inheritdoc */
     public function handle($match, $state, $pos, Doku_Handler $handler)
     {
-        global $INFO;
+        global $INFO, $ID;
         switch ($state) {
             case DOKU_LEXER_ENTER:
                 try {
                     $table_nr = (int) substr($match, 5, 2);
-                    return [$state, [$pos, $table_nr, p_get_metadata($INFO['id'], 'dtable_pages')]];
+                    return [$state, [$pos, $table_nr, p_get_metadata($INFO['id'] ?? null, 'dtable_pages')]];
                 } catch (Exception $e) {
                     return [$state, false];
                 }

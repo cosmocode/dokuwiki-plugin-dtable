@@ -62,7 +62,7 @@ class action_plugin_dtable extends ActionPlugin
         }
 
         //it will make include plugin behaves correctly
-        p_set_metadata($INFO['id'], ['dtable_pages' => $dtable_pages], false, false);
+        p_set_metadata($INFO['id'] ?? null, ['dtable_pages' => $dtable_pages], false, false);
 
         //mark dtables
         //it will not work becouse section editing in dokuwiki needs no modified content.
